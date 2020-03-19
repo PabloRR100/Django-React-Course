@@ -1,4 +1,6 @@
-.vscode
+*.vscode
+*.pytest_cache
 django-venv/*
 *.pyc
 *.sqlite3
+*__pycache__*
