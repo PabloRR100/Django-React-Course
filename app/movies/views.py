@@ -2,13 +2,24 @@
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 
 from .models import Movie
 from .serializers import MovieSerializer
 
 
+class MovieViewSet(viewsets.ModelViewSet):
+    ''' API endpoint '''
+    queryset = Movie.objects.all()
+    serializer_class = MovieSerializer
+
+
 class MovieList(APIView):
+    def get(self, request, format=None):
+        movies = Movie.objects.all()
+        serializer = MovieSerializer(movies, many=True)
+        return Response(serializer.data)
+
     def post(self, request, format=None):
         serializer = MovieSerializer(data=request.data)
         if serializer.is_valid():
