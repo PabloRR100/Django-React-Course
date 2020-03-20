@@ -24,3 +24,4 @@ def test_invalid_movie_serializer():
     assert serializer.validated_data == {}
     assert serializer.data == invalid_serializer_data
     assert serializer.errors == {"year": ["This field is required."]}
+
