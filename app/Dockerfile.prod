@@ -11,6 +11,8 @@ ENV SECRET_KEY blablablablablablablablablablablablablablablablablablablablablabl
 # ENV DJANGO_ALLOWED_HOSTS localhost 127.0.01 [::1]
 ENV DJANGO_ALLOWED_HOSTS .herokuapp.com
 
+# ENV DATABASE_URL postgresql://foo:bar@ec2-107-20-230-70.compute-1.amazonaws.com:5432/datn10dvjpjut9
+
 # install psycopg2 dependencies
 RUN apk update \
     && apk add postgresql-dev gcc python3-dev musl-dev
@@ -22,6 +24,9 @@ RUN pip install -r requirements.txt
 
 # copy project
 COPY . /usr/src/app/
+
+# collect static files
+RUN python manage.py collectstatic --noinput
 
 # add and run as non-root user
 RUN adduser -D myuser
