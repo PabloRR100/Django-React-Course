@@ -4,3 +4,6 @@ django-venv/*
 *.pyc
 *.sqlite3
 *__pycache__*
+.coverage
+.coveragerc
+htmlcov/
