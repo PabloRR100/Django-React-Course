@@ -1,4 +1,3 @@
-import json
 import pytest
 from movies.models import Movie
 
@@ -29,11 +28,7 @@ def test_add_movie_invalid_json(client):
     movies = Movie.objects.all()
     assert len(movies) == 0
 
-    resp = client.post(
-        "/api/movies/",
-        {},
-        content_type="application/json"
-    )
+    resp = client.post("/api/movies/", {}, content_type="application/json")
     assert resp.status_code == 400
 
     movies = Movie.objects.all()
@@ -47,11 +42,8 @@ def test_add_movie_invalid_json_keys(client):
 
     resp = client.post(
         "/api/movies/",
-        {
-            "title": "The Big Lebowski",
-            "genre": "comedy",
-        },
-        content_type="application/json"
+        {"title": "The Big Lebowski", "genre": "comedy"},
+        content_type="application/json",
     )
     assert resp.status_code == 400
 
@@ -77,6 +69,6 @@ def test_get_single_movie_incorrect_id(client):
 def test_get_all_movies(client, add_movie):
     movie1 = add_movie(title="Movie 1", genre="comedy", year="1998")
     movie2 = add_movie(title="Movie 2", genre="comedy", year="1998")
-    resp = client.get(f'/api/movies/')
-    assert resp.data[0]['title'] == 'Movie 1'
-    assert resp.data[1]['title'] == 'Movie 2'
+    resp = client.get(f"/api/movies/")
+    assert resp.data[0]["title"] == movie1.title
+    assert resp.data[1]["title"] == movie2.title
