@@ -132,7 +132,7 @@ def test_update_movie_incorrect_id(client):
 @pytest.mark.django_db
 @pytest.mark.parametrize("add_movie, payload, status_code", [
     ["add_movie", {}, 400],
-    ["add_movie",{"title": "The Big Lebowski", "genre": "comedy"}, 400],
+    ["add_movie", {"title": "The Big Lebowski", "genre": "comedy"}, 400],
 ], indirect=["add_movie"])
 def test_update_movie_invalid_json(client, add_movie, payload, status_code):
     movie = add_movie(title="The Big Lebowski", genre="comedy", year="1998")
