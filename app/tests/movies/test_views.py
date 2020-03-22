@@ -111,7 +111,7 @@ def test_update_movie(client, add_movie):
     resp = client.put(
         f"/api/movies/{movie.id}/",
         {"title": "The Big Lebowski", "genre": "comedy", "year": "1997"},
-        content_type="application/json"
+        content_type="application/json",
     )
     assert resp.status_code == 200
     assert resp.data["title"] == "The Big Lebowski"
@@ -130,15 +130,17 @@ def test_update_movie_incorrect_id(client):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("add_movie, payload, status_code", [
-    ["add_movie", {}, 400],
-    ["add_movie", {"title": "The Big Lebowski", "genre": "comedy"}, 400],
-], indirect=["add_movie"])
+@pytest.mark.parametrize(
+    "add_movie, payload, status_code",
+    [
+        ["add_movie", {}, 400],
+        ["add_movie", {"title": "The Big Lebowski", "genre": "comedy"}, 400],
+    ],
+    indirect=["add_movie"],
+)
 def test_update_movie_invalid_json(client, add_movie, payload, status_code):
     movie = add_movie(title="The Big Lebowski", genre="comedy", year="1998")
     resp = client.put(
-        f"/api/movies/{movie.id}/",
-        payload,
-        content_type="application/json",
+        f"/api/movies/{movie.id}/", payload, content_type="application/json",
     )
     assert resp.status_code == status_code
