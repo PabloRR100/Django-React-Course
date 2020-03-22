@@ -3,7 +3,7 @@ image: docker:stable
 stages:
   - build
   - test
-  # - deploy
+  - deploy
 
 variables:
   IMAGE: ${CI_REGISTRY_IMAGE}/${CI_PROJECT_NAME}
@@ -45,30 +45,34 @@ test:
     # https://docs.gitlab.com/ee/ci/services/postgres.html
   script:
     - cd app
-    - pytest -p no:warnings --cov=.
+    - python3.8 -m venv env
+    - source env/bin/activate
+    - pip install -r requirements.txt
+    - pip install black flake8 isort pytest pytest-django
+    - pytest -p no:warnings
     - flake8 .
-    - black --check --exclude=migrations .
+    - black --check --exclude="migrations|env" .
     - isort ./*/*.py --check-only
 
-# deploy:
-#   stage: deploy
-#   services:
-#     - docker:dind
-#   variables:
-#     DOCKER_DRIVER: overlay2
-#     HEROKU_APP_NAME: django-tdd-course
-#     HEROKU_REGISTRY_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
-#   script:
-#     - apk add --no-cache curl
-#     - cd app
-#     - docker build
-#         --tag $HEROKU_REGISTRY_IMAGE
-#         --file ./Dockerfile.prod
-#         "."
-#     - docker login -u _ -p $HEROKU_AUTH_TOKEN registry.heroku.com
-#     - docker push $HEROKU_REGISTRY_IMAGE
-#     # Create a new release via the Heroku API using 
-#     # the image ID within the release.sh script
-#     - cd ..
-#     - chmod +x ./release.sh
-#     - ./release.sh
+deploy:
+  stage: deploy
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    HEROKU_APP_NAME: django-tdd-course
+    HEROKU_REGISTRY_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
+  script:
+    - apk add --no-cache curl
+    - cd app
+    - docker build
+        --tag $HEROKU_REGISTRY_IMAGE
+        --file ./Dockerfile.prod
+        "."
+    - docker login -u _ -p $HEROKU_AUTH_TOKEN registry.heroku.com
+    - docker push $HEROKU_REGISTRY_IMAGE
+    # Create a new release via the Heroku API using 
+    # the image ID within the release.sh script
+    - cd ..
+    - chmod +x ./release.sh
+    - ./release.sh
