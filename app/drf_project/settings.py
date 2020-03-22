@@ -99,7 +99,6 @@ DATABASES = {
 DATABASE_URL = os.environ.get("DATABASE_URL")
 db_from_env = dj_database_url.config(default=DATABASE_URL, conn_max_age=500)
 DATABASES["default"].update(db_from_env)
-
 print(DATABASES)
 
 # Password validation

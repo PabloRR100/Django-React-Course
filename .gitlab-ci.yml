@@ -3,10 +3,11 @@ image: docker:stable
 stages:
   - build
   - test
-  - deploy
+  # - deploy
 
 variables:
   IMAGE: ${CI_REGISTRY_IMAGE}/${CI_PROJECT_NAME}
+  CI_DEBUG_TRACE: "true"
   # IMAGE: ${CI_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}
 
 build:
@@ -39,6 +40,7 @@ test:
     POSTGRES_DB: users
     POSTGRES_USER: runner
     POSTGRES_PASSWORD: ""
+    POSTGRES_HOST_AUTH_METHOD: trust
     DATABASE_URL: postgres://runner@postgres:5432/users
     # https://docs.gitlab.com/ee/ci/services/postgres.html
   script:
@@ -47,3 +49,26 @@ test:
     - flake8 .
     - black --check --exclude=migrations .
     - isort ./*/*.py --check-only
+
+deploy:
+  stage: deploy
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    HEROKU_APP_NAME: django-tdd-course
+    HEROKU_REGISTRY_IMAGE: registry.heroku.com/${HEROKU_APP_NAME}/web
+  script:
+    - apk add --no-cache curl
+    - cd app
+    - docker build
+        --tag $HEROKU_REGISTRY_IMAGE
+        --file ./Dockerfile.prod
+        "."
+    - docker login -u _ -p $HEROKU_AUTH_TOKEN registry.heroku.com
+    - docker push $HEROKU_REGISTRY_IMAGE
+    # Create a new release via the Heroku API using 
+    # the image ID within the release.sh script
+    - cd ..
+    - chmod +x ./release.sh
+    - ./release.sh
