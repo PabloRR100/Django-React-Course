@@ -48,8 +48,6 @@ ENV DEBUG 0
 ENV SECRET_KEY blablablablablablablablablablablablablablablablablablablablablablablablablablabla
 ENV DJANGO_ALLOWED_HOSTS .herokuapp.com
 
-# ENV DATABASE_URL postgresql://foo:bar@ec2-107-20-230-70.compute-1.amazonaws.com:5432/datn10dvjpjut9
-
 # install psycopg2 dependencies
 RUN apk update \
     && apk add postgresql-dev gcc python3-dev musl-dev
