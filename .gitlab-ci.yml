@@ -16,13 +16,17 @@ build:
     DOCKER_DRIVER: overlay2
   script:
     - cd app
+    # Login to GitLab Docker Registiry
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+    # Pull the previously pushed image (if it exists)
     - docker pull $IMAGE:latest || true
+    # Build and tag the new image
     - docker build
         --cache-from $IMAGE:latest
         --tag $IMAGE:latest
         --file ./Dockerfile.prod
         "."
+    # Push the new image to Gitlab Resgitry
     - docker push $IMAGE:latest
 
 test:
@@ -35,6 +39,7 @@ test:
     POSTGRES_USER: runner
     POSTGRES_PASSWORD: ""
     DATABASE_URL: postgres://runner@postgres:5432/users
+    # https://docs.gitlab.com/ee/ci/services/postgres.html
   script:
     - cd app
     - pytest -p no:warnings --cov=.
