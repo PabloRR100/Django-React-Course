@@ -4,6 +4,7 @@ from movies.models import Movie
 
 """ CREATE """
 
+
 @pytest.mark.django_db
 def test_add_movie(client):
     movies = Movie.objects.all()
@@ -51,6 +52,7 @@ def test_add_movie_invalid_json_keys(client):
 
 """ GET """
 
+
 @pytest.mark.django_db
 def test_get_single_movie(client, add_movie):
     movie = add_movie(title="The Big Lebowski", genre="comedy", year="1998")
@@ -76,6 +78,7 @@ def test_get_all_movies(client, add_movie):
 
 """ DELETE """
 
+
 @pytest.mark.django_db
 def test_remove_movie(client, add_movie):
     movie = add_movie(title="The Big Lebowski", genre="comedy", year="1998")
@@ -99,6 +102,7 @@ def test_remove_movie_incorrect_id(client):
 
 
 """ UPDATE """
+
 
 @pytest.mark.django_db
 def test_update_movie(client, add_movie):
@@ -126,19 +130,15 @@ def test_update_movie_incorrect_id(client):
 
 
 @pytest.mark.django_db
-def test_update_movie_invalid_json(client, add_movie):
+@pytest.mark.parametrize("add_movie, payload, status_code", [
+    ["add_movie", {}, 400],
+    ["add_movie",{"title": "The Big Lebowski", "genre": "comedy"}, 400],
+], indirect=["add_movie"])
+def test_update_movie_invalid_json(client, add_movie, payload, status_code):
     movie = add_movie(title="The Big Lebowski", genre="comedy", year="1998")
-    resp = client.put(f"/api/movies/{movie.id}/", {}, content_type="application/json")
-    assert resp.status_code == 400
-
-
-@pytest.mark.django_db
-def test_update_movie_invalid_json_keys(client, add_movie):
-    movie = add_movie(title="The Big Lebowski", genre="comedy", year="1998")
-
     resp = client.put(
         f"/api/movies/{movie.id}/",
-        {"title": "The Big Lebowski", "genre": "comedy"},
+        payload,
         content_type="application/json",
     )
-    assert resp.status_code == 400
+    assert resp.status_code == status_code
